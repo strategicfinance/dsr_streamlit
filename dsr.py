@@ -97,7 +97,7 @@ dsr_lock = sim2.slider(
     value=0.0,
 )
 dsr = sim3.slider(
-    "DSR - Capped at ROA (%)", min_value=dsr_18_sep_2022, max_value=new_roa
+    "DSR - Capped at ROA (%)", min_value=dsr_18_sep_2022, max_value=psm_roa
 )
 
 dsr_exp = new_dai * dsr_lock / 100 * dsr / 100
