@@ -23,18 +23,23 @@ psm_roa = roa1.number_input("PSM (%)", min_value=0.00, format="%.2f", value=0.8)
 rwa_roa = roa2.number_input("RWA (%)", min_value=0.00, format="%.2f", value=3.0)
 cry_roa = roa3.number_input("Crypto (%)", min_value=0.00, format="%.2f", value=1.26)
 
+bs_18_sep_2022 = [
+    ["PSM", 5_206_192_880, psm_roa],
+    ["RWA", 139_017_410, rwa_roa],
+    ["Crypto", 1_168_651_320, cry_roa],
+]
+
+bal1, bal2, bal3 = st.columns(3)
+bal1.metric("PSM Balance", value=f"{human_format(bs_18_sep_2022[0][1])}")
+bal2.metric("RWA Balance", value=f"{human_format(bs_18_sep_2022[1][1])}")
+bal3.metric("Crypto Balance", value=f"{human_format(bs_18_sep_2022[2][1])}")
+
 work = st.number_input(
     "Annualized Workforce Expense (DAI)",
     min_value=0.00,
     format="%.0f",
     value=40_000_000.00,
 )
-
-bs_18_sep_2022 = [
-    ["PSM", 5_206_192_880, psm_roa],
-    ["RWA", 139_017_410, rwa_roa],
-    ["Crypto", 1_168_651_320, cry_roa],
-]
 sbuffer_18_sep_2022 = 79_314_768.00
 dsrlock_18_sep_2022 = 1_173_793.00
 dsr_18_sep_2022 = 0.01
@@ -72,10 +77,12 @@ psm_gwth = sim1.slider(
     value=0.0,
 )
 new_psm = data[data["label"] == "PSM"]["balance"].values[0] * (1 + psm_gwth / 100)
+rwa_bal = data[data["label"] == "RWA"]["balance"].values[0]
+cry_bal = data[data["label"] == "Crypto"]["balance"].values[0]
 new_bs = [
     new_psm,
-    data[data["label"] == "RWA"]["balance"].values[0],
-    data[data["label"] == "Crypto"]["balance"].values[0],
+    rwa_bal,
+    cry_bal,
 ]
 new_rev = sum(new_bs * data["roa"] / 100)
 new_roa = new_rev / sum(new_bs) * 100
@@ -91,8 +98,14 @@ dsr = sim3.slider(
     "DSR - Capped at ROA (%)", min_value=dsr_18_sep_2022, max_value=new_roa
 )
 
-dsr_exp = new_dai * dsr_lock / 100 * dsr
+dsr_exp = new_dai * dsr_lock / 100 * dsr / 100
 new_prof = new_rev - work - dsr_exp
+
+nbal1, nbal2, nbal3 = st.columns(3)
+nbal1.metric("New PSM Balance", value=f"{human_format(new_psm)}")
+nbal2.metric("New RWA Balance", value=f"{human_format(rwa_bal)}")
+nbal3.metric("New Crypto Balance", value=f"{human_format(cry_bal)}")
+
 
 ntot1, ntot2, ntot3 = st.columns(3)
 ntot1.metric(
