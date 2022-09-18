@@ -18,8 +18,9 @@ st.title("DSR Reflexivity")
 st.write("Balance data as of 18-Sep-2022")
 
 st.subheader("Gross Return per collateral type")
+min_psm_roa = 0.8
 roa1, roa2, roa3 = st.columns(3)
-psm_roa = roa1.number_input("PSM (%)", min_value=0.00, format="%.2f", value=0.8)
+psm_roa = roa1.number_input("PSM (%)", min_value=0.00, format="%.2f", value=min_psm_roa)
 rwa_roa = roa2.number_input("RWA (%)", min_value=0.00, format="%.2f", value=3.0)
 cry_roa = roa3.number_input("Crypto (%)", min_value=0.00, format="%.2f", value=1.26)
 
@@ -55,6 +56,7 @@ total_rev = sum(data["ann_rev"])
 nprofit_18_sep_2022 = total_rev - dsr_expense_18_sep_2022 - work
 
 st.subheader("Current Balances")
+st.write(f"Assumes PSM generates an ROA of {min_psm_roa:.2f}")
 
 tot1, tot2 = st.columns(2)
 tot1.metric("Total DAI Outstanding", value=f"{human_format(total_dai)}")
