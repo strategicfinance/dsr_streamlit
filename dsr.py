@@ -55,8 +55,8 @@ total_dai = sum(data[["balance"]].values)[0] - sbuffer_18_sep_2022
 total_rev = sum(data["ann_rev"])
 nprofit_18_sep_2022 = total_rev - dsr_expense_18_sep_2022 - work
 
-st.subheader("Current Balances")
-st.write(f"Assumes PSM generates an ROA of {min_psm_roa:.2f}")
+st.subheader("Current (Assumed) Balances")
+st.write(f"Assumes PSM generates an ROA of {min_psm_roa:.2f}%")
 
 tot1, tot2 = st.columns(2)
 tot1.metric("Total DAI Outstanding", value=f"{human_format(total_dai)}")
