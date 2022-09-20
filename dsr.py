@@ -63,13 +63,15 @@ og_dsrExpense = DSR_OG * DSRLOCK_OG
 total_dai = og_psm + og_rwa + og_cry - SBUFFER_OG
 total_rev = (og_psm * psm_roa + og_rwa * rwa_roa + og_cry * cry_roa) / 100
 og_netProfit = total_rev - og_dsrExpense - workforceExpense
+og_roe = og_netProfit / SBUFFER_OG
 
 st.subheader("Current (Assumed) Balances")
 st.write(f"Assumes PSM generates an ROA of {min_psm_roa:.2f}%")
 
-tot1, tot2 = st.columns(2)
+tot1, tot2, tot3 = st.columns(3)
 tot1.metric("Total DAI Outstanding", value=f"{human_format(total_dai)}")
 tot2.metric("Net Profit (DAI)", value=f"{human_format(og_netProfit)}")
+tot3.metric("ROE (%)", value=f"{og_roe:.2%}")
 cur1, cur2, cur3 = st.columns(3)
 cur1.metric("Total DAI Locked in DSR", value=f"{DSRLOCK_OG/total_dai:.2%}")
 cur2.metric("DSR", value=f"{DSR_OG:.2}%")
@@ -110,12 +112,19 @@ dsr = sim3.slider("DSR - Capped at ROA (%)", min_value=DSR_OG, max_value=agg_roa
 
 dsr_exp = new_dai * dsr_lock / 100 * dsr / 100
 new_prof = new_rev - workforceExpense - dsr_exp
+new_roe = new_prof / SBUFFER_OG
 
 nbal1, nbal2, nbal3 = st.columns(3)
 nbal1.metric("New PSM Balance", value=f"{human_format(new_psm)}")
 nbal2.metric("New RWA Balance", value=f"{human_format(rwa_bal)}")
 nbal3.metric("New Crypto Balance", value=f"{human_format(cry_bal)}")
 
+
+st.metric(
+    "New Annualized DSR Expense",
+    value=f"{human_format(dsr_exp)}",
+    delta=f"{(dsr_exp/og_dsrExpense-1)*100:.2f}%",
+)
 
 ntot1, ntot2, ntot3 = st.columns(3)
 ntot1.metric(
@@ -124,13 +133,13 @@ ntot1.metric(
     delta=f"{(new_dai/total_dai-1)*100:.2f}%",
 )
 ntot2.metric(
-    "New Annualized DSR Expense",
-    value=f"{human_format(dsr_exp)}",
-    delta=f"{(dsr_exp/og_dsrExpense-1)*100:.2f}%",
-)
-
-ntot3.metric(
     "Net Profit (DAI)",
     value=f"{human_format(new_prof)}",
     delta=f"{(new_prof/og_netProfit-1)*100:.2f}%",
+)
+
+ntot3.metric(
+    "New ROE (%)",
+    value=f"{new_roe:.2%}",
+    delta=f"{new_roe - og_roe:.2%}",
 )
