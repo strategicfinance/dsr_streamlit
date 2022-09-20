@@ -19,9 +19,14 @@ def human_format(num):
 
 
 st.title("DSR Reflexivity")
-st.write("Balance data as of 18-Sep-2022, can be modified to match different scenarios")
+st.write(
+    "Balance data as of 18-Sep-2022, can be modified to match different scenarios. Assumes surplus buffer of ~79m as of 18-Sep-2022"
+)
 st.write(
     "Baseline ROA figures should be expectation for gross interest returns on the provided balances.",
+)
+st.write(
+    "Instructions: provide expected gross returns on each of the asset balances. Then provide your expected annualized workforce expense to create a baseline for comparison. Finally, add assumptions for Growth in PSM, DAI locked in DSR and DSR rate to see what the new ROE would be."
 )
 
 st.subheader("Gross Return per collateral type")
@@ -78,14 +83,16 @@ cur2.metric("DSR", value=f"{DSR_OG:.2}%")
 cur3.metric("Annualized DSR Expense", value=f"{human_format(og_dsrExpense)}")
 
 
-st.subheader("Simulated Balances")
-sim1, sim2, sim3 = st.columns(3)
-psm_gwth = sim1.slider(
+st.subheader("Change in DSR assumptions")
+psm_gwth = st.slider(
     "Growth in PSM (%)",
     min_value=(SBUFFER_OG / og_psm - 1.0) * 100.00,
     max_value=300.00,
     value=0.0,
 )
+
+sim1, sim2, sim3 = st.columns(3)
+
 new_psm = og_psm * (1 + psm_gwth / 100)
 rwa_bal = og_rwa
 cry_bal = og_cry
@@ -102,29 +109,30 @@ new_rev = sum(new_roarev) / 100.00
 new_roa = new_rev / sum(new_bs) * 100
 new_dai = sum(new_bs) - SBUFFER_OG
 
-dsr_lock = sim2.slider(
+dsr_lock = sim1.slider(
     "Dai locked in Pot (%)",
     min_value=(DSRLOCK_OG / total_dai) * 100.00,
     max_value=100.00,
     value=0.0,
 )
-dsr = sim3.slider("DSR - Capped at ROA (%)", min_value=DSR_OG, max_value=agg_roa)
+dsr = sim2.slider("DSR - Capped at ROA (%)", min_value=DSR_OG, max_value=agg_roa)
 
 dsr_exp = new_dai * dsr_lock / 100 * dsr / 100
 new_prof = new_rev - workforceExpense - dsr_exp
 new_roe = new_prof / SBUFFER_OG
 
-nbal1, nbal2, nbal3 = st.columns(3)
-nbal1.metric("New PSM Balance", value=f"{human_format(new_psm)}")
-nbal2.metric("New RWA Balance", value=f"{human_format(rwa_bal)}")
-nbal3.metric("New Crypto Balance", value=f"{human_format(cry_bal)}")
-
-
-st.metric(
+sim3.metric(
     "New Annualized DSR Expense",
     value=f"{human_format(dsr_exp)}",
     delta=f"{(dsr_exp/og_dsrExpense-1)*100:.2f}%",
 )
+
+st.subheader("Simulated Outcomes")
+
+nbal1, nbal2, nbal3 = st.columns(3)
+nbal1.metric("New PSM Balance", value=f"{human_format(new_psm)}")
+nbal2.metric("New RWA Balance", value=f"{human_format(rwa_bal)}")
+nbal3.metric("New Crypto Balance", value=f"{human_format(cry_bal)}")
 
 ntot1, ntot2, ntot3 = st.columns(3)
 ntot1.metric(
