@@ -42,6 +42,10 @@ og_cry = ogbal3.number_input(
     "Crypto Balance", min_value=0.0, format="%.2f", value=1_168_651_320.00
 )
 
+agg_roa = (og_psm * psm_roa + og_rwa * rwa_roa + og_cry * cry_roa) / (
+    og_psm + og_rwa + og_cry
+)
+
 bal1, bal2, bal3 = st.columns(3)
 bal1.metric("PSM Balance", value=f"{human_format(og_psm)}")
 bal2.metric("RWA Balance", value=f"{human_format(og_rwa)}")
@@ -102,7 +106,7 @@ dsr_lock = sim2.slider(
     max_value=100.00,
     value=0.0,
 )
-dsr = sim3.slider("DSR - Capped at ROA (%)", min_value=DSR_OG, max_value=psm_roa)
+dsr = sim3.slider("DSR - Capped at ROA (%)", min_value=DSR_OG, max_value=agg_roa)
 
 dsr_exp = new_dai * dsr_lock / 100 * dsr / 100
 new_prof = new_rev - workforceExpense - dsr_exp
